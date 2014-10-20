@@ -13,17 +13,17 @@ import sys
 
 class TXTtoXLSConverter:
     #setting up control symbols
-    caption_char = '='   # indicates "headlines" for steps,   only as first character
-    new_file_char = '>'   # indicates a new file to open,      only as first character
-    empty_line_char = '_'   # indicates an empty line,           only as first character
-    ignore_line_char = '-'   # line will be ignored,              only as first character
-    cell_break_char = '|'   # indicates a cell-"break",          only useable w/o headlines and new file
-    format_char = '§'   # indicates a change in format,      only usable after headlines!
+    __caption_char__ = '='   # indicates "headlines" for steps,   only as first character
+    __new_file_char__ = '>'   # indicates a new file to open,      only as first character
+    __empty_line_char__ = '_'   # indicates an empty line,           only as first character
+    __ignore_line_char__ = '-'   # line will be ignored,              only as first character
+    __cell_break_char__ = '|'   # indicates a cell-"break",          only useable w/o headlines and new file
+    __format_char__ = '§'   # indicates a change in format,      only usable after headlines!
 
-    file_extension = 'txt'     # w/o dot
+    __file_extension__ = 'txt'     # w/o dot
 
-    row = -2    # script increases the row before it writes something! so to be 0 the first line to write in we need -1
-    col = 0
+    __row__ = -2    # script increases the row before it writes something! so to be 0 the first line to write in we need -1
+    __col__ = 0
 
 
     def convertTXTtoXLS(process_filename, excel_filename):
@@ -33,10 +33,10 @@ class TXTtoXLSConverter:
         workbook = xlsxwriter.Workbook(excel_filename)
         worksheet = workbook.add_worksheet()
 
-        TXTtoXLSConverter.build_formats(workbook)
+        TXTtoXLSConverter.__build_formats__(workbook)
 
         # Open the "process" file
-        end = TXTtoXLSConverter.export_file(worksheet, process_filename, TXTtoXLSConverter.row)
+        end = TXTtoXLSConverter.__export_file__(worksheet, process_filename, TXTtoXLSConverter.__row__)
             # this function is recursive, will handle the file processing and write the excel file
 
         # Set a few parameters for a nice excel file
@@ -54,41 +54,41 @@ class TXTtoXLSConverter:
         workbook.close()
         return
 
-    def export_file(worksheet, filename, row):
+    def __export_file__(worksheet, filename, row):
         #works through the file/s and writes into xlsx
         #filename/filepath w/o extension
 
-        file = open('.'.join((filename.split(".")[0], TXTtoXLSConverter.file_extension)), mode='r', encoding='UTF-8')
+        file = open('.'.join((filename.split(".")[0], TXTtoXLSConverter.__file_extension__)), mode='r', encoding='UTF-8')
         for line in file:
 
             # caption
-            if line[0] == TXTtoXLSConverter.caption_char:
-                row = TXTtoXLSConverter.write_caption(worksheet, line[1:].strip(), row)
+            if line[0] == TXTtoXLSConverter.__caption_char__:
+                row = TXTtoXLSConverter.__write_caption__(worksheet, line[1:].strip(), row)
 
             # new file
-            elif line[0] == TXTtoXLSConverter.new_file_char:
-                row = TXTtoXLSConverter.export_file(worksheet, line[1:].strip(), row)
+            elif line[0] == TXTtoXLSConverter.__new_file_char__:
+                row = TXTtoXLSConverter.__export_file__(worksheet, line[1:].strip(), row)
 
             # empty line
-            elif line[0] == TXTtoXLSConverter.empty_line_char:
+            elif line[0] == TXTtoXLSConverter.__empty_line_char__:
                 row += 1  # skip one row
 
             # ignored line
-            elif line[0] == TXTtoXLSConverter.ignore_line_char:
+            elif line[0] == TXTtoXLSConverter.__ignore_line_char__:
                 pass  # do nothing
 
             # normal
             else:
-                row = TXTtoXLSConverter.write_line(worksheet, line.strip(), row)
+                row = TXTtoXLSConverter.__write_line__(worksheet, line.strip(), row)
 
         file.close()
         return row
 
-    def write_caption(worksheet, text, row, col=0):
+    def __write_caption__(worksheet, text, row, col=0):
         #writing caption cells and handling the formats
         global current_format
-        if TXTtoXLSConverter.format_char in text:
-            text, format_name = text.split(TXTtoXLSConverter.format_char)
+        if TXTtoXLSConverter.__format_char__ in text:
+            text, format_name = text.split(TXTtoXLSConverter.__format_char__)
             text = text.strip()
             format_name = format_name.strip()
             if format_name in formats_dict.keys():
@@ -101,13 +101,13 @@ class TXTtoXLSConverter:
         worksheet.write(row, col+2, text.strip(), current_format)
         return row
 
-    def write_line(worksheet, text, row, col=0):
+    def __write_line__(worksheet, text, row, col=0):
         #writing default cells
 
         if text.strip() == '':
             return row  # do not write empty inputlines, except wenn marked with empty_line_char (see above)
         row += 1    # always write in the next row
-        cells = text.split(TXTtoXLSConverter.cell_break_char)
+        cells = text.split(TXTtoXLSConverter.__cell_break_char__)
         for cell in cells:
             tmpCell = cell.strip().replace("<br>","\n")  # creates linebreaks at <br>
             worksheet.write(row, col, tmpCell, current_format)
@@ -116,7 +116,7 @@ class TXTtoXLSConverter:
         #print(cells)
         return row
 
-    def build_formats(workbook):
+    def __build_formats__(workbook):
         #this has to be called after creating the workbook and worksheet
 
         # http://xlsxwriter.readthedocs.org/en/latest/working_with_formats.html
