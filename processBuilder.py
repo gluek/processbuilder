@@ -115,7 +115,6 @@ class ProcessBuilderGui(QDialog):
                     file.write("%s\n" % listWidget.item(i).whatsThis())
                 file.close()
                 convertTXTtoXLS(filename, excelname[0])
-                    #self.convertTXTtoXLS(filename, excelname[0])
         def insertCustomHeading():
             """function to insert custom heading into xls"""
             inputHeader = QInputDialog.getText(None, "ProcessBuilder", "Insert Heading:", QLineEdit.Normal)
