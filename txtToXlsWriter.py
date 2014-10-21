@@ -10,6 +10,7 @@
 
 import xlsxwriter
 import sys
+import io
 
 #class TXTtoXLSConverter:
 #"""setting up control symbols"""
@@ -26,7 +27,7 @@ __row__ = -2    # script increases the row before it writes something! so to be 
 __col__ = 0
 
 
-def convertTXTtoXLS(process_filename, excel_filename):
+def convertTXTtoXLS(process_iostream, excel_filename):
 
     """Goal is to write into an Excel Spreedsheet, so we start with this
     Create an new Excel file and add a worksheet."""
@@ -36,7 +37,7 @@ def convertTXTtoXLS(process_filename, excel_filename):
     __build_formats__(workbook)
 
     # Open the "process" file
-    end = __export_file__(worksheet, process_filename, __row__)
+    end = __export_file__(worksheet, process_iostream, __row__)
         # this function is recursive, will handle the file processing and write the excel file
 
     # Set a few parameters for a nice excel file
@@ -54,34 +55,52 @@ def convertTXTtoXLS(process_filename, excel_filename):
     workbook.close()
     return
 
-def __export_file__(worksheet, filename, row):
+def __export_file__(worksheet, process_iostream, row):
     """works through the file/s and writes into xlsx
     filename/filepath w/o extension"""
+    if isinstance(process_iostream, str):
+        file = open(process_iostream.split(".")[0] + "." + __file_extension__, mode='r', encoding='UTF-8')
+        for line in file:
+            # caption
+            if line[0] == __caption_char__:
+                row = __write_caption__(worksheet, line[1:].strip(), row)
 
-    file = open('.'.join((filename.split(".")[0], __file_extension__)), mode='r', encoding='UTF-8')
-    for line in file:
+            # new file
+            elif line[0] == __new_file_char__:
+                row = __export_file__(worksheet, line[1:].strip(), row)
 
-        # caption
-        if line[0] == __caption_char__:
-            row = __write_caption__(worksheet, line[1:].strip(), row)
+            # empty line
+            elif line[0] == __empty_line_char__:
+                row += 1  # skip one row
 
-        # new file
-        elif line[0] == __new_file_char__:
-            row = __export_file__(worksheet, line[1:].strip(), row)
+            # ignored line
+            elif line[0] == __ignore_line_char__:
+                pass  # do nothing
 
-        # empty line
-        elif line[0] == __empty_line_char__:
-            row += 1  # skip one row
+            # normal
+            else:
+                row = __write_line__(worksheet, line.strip(), row)
+    elif isinstance(process_iostream, io.StringIO):
+        for line in process_iostream.getvalue().splitlines():
+            if line[0] == __caption_char__:
+                row = __write_caption__(worksheet, line[1:].strip(), row)
 
-        # ignored line
-        elif line[0] == __ignore_line_char__:
-            pass  # do nothing
+            # new file
+            elif line[0] == __new_file_char__:
+                row = __export_file__(worksheet, line[1:].strip(), row)
 
-        # normal
-        else:
-            row = __write_line__(worksheet, line.strip(), row)
+            # empty line
+            elif line[0] == __empty_line_char__:
+                row += 1  # skip one row
 
-    file.close()
+            # ignored line
+            elif line[0] == __ignore_line_char__:
+                pass  # do nothing
+
+            # normal
+            else:
+                row = __write_line__(worksheet, line.strip(), row)
+
     return row
 
 def __write_caption__(worksheet, text, row, col=0):
