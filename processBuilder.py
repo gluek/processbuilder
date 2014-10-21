@@ -90,7 +90,6 @@ class ProcessBuilderGui(QDialog):
         self.setWindowTitle("Process Builder")
         readIni = configparser.ConfigParser()
         readIni.read("processBuilder.ini")
-        filename = readIni["DEFAULT"]["txtFilename"]
 
         #create UI buttons
         generateXlsButton = QPushButton("Generate")
