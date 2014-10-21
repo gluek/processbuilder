@@ -12,7 +12,7 @@ import xlsxwriter
 import sys
 
 class TXTtoXLSConverter:
-    #setting up control symbols
+    """setting up control symbols"""
     __caption_char__ = '='   # indicates "headlines" for steps,   only as first character
     __new_file_char__ = '>'   # indicates a new file to open,      only as first character
     __empty_line_char__ = '_'   # indicates an empty line,           only as first character
@@ -28,8 +28,8 @@ class TXTtoXLSConverter:
 
     def convertTXTtoXLS(process_filename, excel_filename):
 
-        # Goal is to write into an Excel Spreedsheet, so we start with this
-        # Create an new Excel file and add a worksheet.
+        """Goal is to write into an Excel Spreedsheet, so we start with this
+        Create an new Excel file and add a worksheet."""
         workbook = xlsxwriter.Workbook(excel_filename)
         worksheet = workbook.add_worksheet()
 
@@ -55,8 +55,8 @@ class TXTtoXLSConverter:
         return
 
     def __export_file__(worksheet, filename, row):
-        #works through the file/s and writes into xlsx
-        #filename/filepath w/o extension
+        """works through the file/s and writes into xlsx
+        filename/filepath w/o extension"""
 
         file = open('.'.join((filename.split(".")[0], TXTtoXLSConverter.__file_extension__)), mode='r', encoding='UTF-8')
         for line in file:
@@ -85,7 +85,7 @@ class TXTtoXLSConverter:
         return row
 
     def __write_caption__(worksheet, text, row, col=0):
-        #writing caption cells and handling the formats
+        """writing caption cells and handling the formats"""
         global current_format
         if TXTtoXLSConverter.__format_char__ in text:
             text, format_name = text.split(TXTtoXLSConverter.__format_char__)
@@ -102,7 +102,7 @@ class TXTtoXLSConverter:
         return row
 
     def __write_line__(worksheet, text, row, col=0):
-        #writing default cells
+        """writing default cells"""
 
         if text.strip() == '':
             return row  # do not write empty inputlines, except wenn marked with empty_line_char (see above)
@@ -117,7 +117,7 @@ class TXTtoXLSConverter:
         return row
 
     def __build_formats__(workbook):
-        #this has to be called after creating the workbook and worksheet
+        """this has to be called after creating the workbook and worksheet"""
 
         # http://xlsxwriter.readthedocs.org/en/latest/working_with_formats.html
         #{'font_name':'Arial'}

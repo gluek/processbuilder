@@ -73,6 +73,7 @@ class ProcessStepSelectorWidget(QTreeWidget):
 
         #custom commands
         def createCustomCommands():
+            """creates control items in TreeWidget to invoke functions"""
             customCmdRoot = QTreeWidgetItem(self)
             customCmdRoot.setText(0, "Extra")
             customCmdHeading = QTreeWidgetItem(customCmdRoot)
@@ -106,6 +107,7 @@ class ProcessBuilderGui(QDialog):
 
     ###additional process commands and functions
         def writeToFile():
+            """writes content of list to file for xls translation"""
             excelname = QFileDialog.getSaveFileName(None, "Generate Excel-File", "C:\\", "Excel File (*.xlsx)")
             if excelname[0]: #user pressed ok
                 file = open(filename, "w", encoding='UTF-8')
@@ -114,6 +116,7 @@ class ProcessBuilderGui(QDialog):
                 file.close()
                 TXTtoXLSConverter.convertTXTtoXLS(filename, excelname[0])
         def insertCustomHeading():
+            """function to insert custom heading into xls"""
             inputHeader = QInputDialog.getText(None, "ProcessBuilder", "Insert Heading:", QLineEdit.Normal)
             if inputHeader[1]:
                 tempListItem = QListWidgetItem(listWidget)
@@ -122,6 +125,7 @@ class ProcessBuilderGui(QDialog):
 
         #translates QTreeWidgetItems to QListWidgetItems and parse additional commands
         def translateTreeToList(item, column):
+            """translates items from QTreeViewWidget to QListWidget items"""
             if item.text(1) == "COMMAND":
                 if item.text(2) == "HEADING": insertCustomHeading()
 
@@ -134,10 +138,12 @@ class ProcessBuilderGui(QDialog):
 
         #func to delete elements inside QListWidget
         def deleteListItem(item):
+            """deletes items from QListWidget"""
             listWidget.takeItem(listWidget.row(item))
 
         #implemente save and load button functionality
         def saveProcess():
+            """saves process to file"""
             saveFilename = QFileDialog.getSaveFileName(None, "Save Process", sys.path[0], "Process File (*.pro)")
             if saveFilename[0]:
                 file = open(saveFilename[0], "w", encoding='UTF-8')
@@ -146,6 +152,7 @@ class ProcessBuilderGui(QDialog):
                 file.close()
 
         def loadProcess():
+            """load process from file"""
             inputFilename = QFileDialog.getOpenFileName(None, "Open Process", readIni["DEFAULT"]["defaultProcessPath"], "Process File(*.pro)")
             if inputFilename[0]:
                 with open(inputFilename[0], encoding='UTF-8') as file:
