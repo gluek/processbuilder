@@ -7,7 +7,7 @@
 import sys
 import os
 import configparser
-from txtToXlsWriter import TXTtoXLSConverter
+from txtToXlsWriter import convertTXTtoXLS
 from PySide.QtCore import *
 from PySide.QtGui import *
 
@@ -114,7 +114,8 @@ class ProcessBuilderGui(QDialog):
                 for i in range(0, listWidget.count()):
                     file.write("%s\n" % listWidget.item(i).whatsThis())
                 file.close()
-                TXTtoXLSConverter.convertTXTtoXLS(filename, excelname[0])
+                convertTXTtoXLS(filename, excelname[0])
+                    #self.convertTXTtoXLS(filename, excelname[0])
         def insertCustomHeading():
             """function to insert custom heading into xls"""
             inputHeader = QInputDialog.getText(None, "ProcessBuilder", "Insert Heading:", QLineEdit.Normal)
