@@ -88,100 +88,130 @@ class ProcessBuilderGui(QDialog):
         super(ProcessBuilderGui, self).__init__(parent)
 
         self.setWindowTitle("Process Builder")
-        readIni = configparser.ConfigParser()
-        readIni.read("processBuilder.ini")
+        self.readIni = configparser.ConfigParser()
+        self.readIni.read("processBuilder.ini")
 
         #create UI buttons
-        generateXlsButton = QPushButton("Generate")
-        saveProcessButton = QPushButton("Save")
-        loadProcessButton = QPushButton("Load")
-        clearProcessButton = QPushButton("Clear")
+        self.generateXlsButton = QPushButton("Generate")
+        self.saveProcessButton = QPushButton("Save")
+        self.loadProcessButton = QPushButton("Load")
+        self.editProcessButton = QPushButton("Edit")
+        self.clearProcessButton = QPushButton("Clear")
 
         #create tree structure with loaded process step templates
-        selectorWidget = ProcessStepSelectorWidget()
+        self.selectorWidget = ProcessStepSelectorWidget()
 
         #create list for process flow
-        listWidget = QListWidget()
-        listWidget.setMovement(QListView.Snap)
-        listWidget.setDragDropMode(QAbstractItemView.InternalMove)
+        self.listWidget = QListWidget()
+        self.listWidget.setMovement(QListView.Snap)
+        self.listWidget.setDragDropMode(QAbstractItemView.InternalMove)
+        self.currentListItem = 0
+        self.exchangeItem = 0
 
-    ###additional process commands and functions
-        def writeToFile():
-            """writes content of list to file for xls translation"""
-            excelname = QFileDialog.getSaveFileName(None, "Generate Excel-File", r"C:\Users\luekens\PycharmProjects\ProcessBuilder", "Excel File (*.xlsx)")
-            if excelname[0]: #user pressed ok
-                file = io.StringIO()
-                #file.encoding("UTF-8")
-                for i in range(0, listWidget.count()):
-                    file.write("%s\n" % listWidget.item(i).whatsThis())
-                convertTXTtoXLS(file, excelname[0])
-                file.close()
-        def insertCustomHeading():
-            """function to insert custom heading into xls"""
-            inputHeader = QInputDialog.getText(None, "ProcessBuilder", "Insert Heading:", QLineEdit.Normal)
-            if inputHeader[1]:
-                tempListItem = QListWidgetItem(listWidget)
-                tempListItem.setWhatsThis("=" + inputHeader[0] + "\t§header")
-                tempListItem.setText("Heading: " + inputHeader[0])
+        #initialize process edit window
+        self.processEditWidget = QWidget()
 
-        #translates QTreeWidgetItems to QListWidgetItems and parse additional commands
-        def translateTreeToList(item, column):
-            """translates items from QTreeViewWidget to QListWidget items"""
-            if item.text(1) == "COMMAND":
-                if item.text(2) == "HEADING": insertCustomHeading()
-
-            elif not item.text(1) == "":
-                tempListItem = QListWidgetItem(listWidget)
-                tempListItem.setWhatsThis(item.text(1))
-                tempListItem.setText(item.text(2) + " -> " + item.text(0))
-
-
-
-        #func to delete elements inside QListWidget
-        def deleteListItem(item):
-            """deletes items from QListWidget"""
-            listWidget.takeItem(listWidget.row(item))
-
-        #implemente save and load button functionality
-        def saveProcess():
-            """saves process to file"""
-            saveFilename = QFileDialog.getSaveFileName(None, "Save Process", sys.path[0], "Process File (*.pro)")
-            if saveFilename[0]:
-                file = open(saveFilename[0], "w", encoding='UTF-8')
-                for i in range(0, listWidget.count()):
-                    file.write("%s\t%s\n" % (listWidget.item(i).text(), listWidget.item(i).whatsThis()))
-                file.close()
-
-        def loadProcess():
-            """load process from file"""
-            inputFilename = QFileDialog.getOpenFileName(None, "Open Process", readIni["DEFAULT"]["defaultProcessPath"], "Process File(*.pro)")
-            if inputFilename[0]:
-                with open(inputFilename[0], encoding='UTF-8') as file:
-                    for line in file:
-                        tmp = line.replace("\n","").split("\t")
-                        tempListItem = QListWidgetItem(listWidget)
-                        tempListItem.setText(tmp[0])
-                        tempListItem.setWhatsThis(tmp[1])
 
         #connect signals
-        selectorWidget.itemDoubleClicked.connect(translateTreeToList)
-        listWidget.itemDoubleClicked.connect(deleteListItem)
-        generateXlsButton.clicked.connect(writeToFile)
-        loadProcessButton.clicked.connect(loadProcess)
-        saveProcessButton.clicked.connect(saveProcess)
-        clearProcessButton.clicked.connect(listWidget.clear)
+        self.selectorWidget.itemDoubleClicked.connect(self.translateTreeToList)
+        self.listWidget.itemDoubleClicked.connect(self.deleteListItem)
+        self.listWidget.itemClicked.connect(self.saveActivatedItem)
+        self.generateXlsButton.clicked.connect(self.writeToFile)
+        self.loadProcessButton.clicked.connect(self.loadProcess)
+        self.saveProcessButton.clicked.connect(self.saveProcess)
+        self.editProcessButton.clicked.connect(self.editProcess)
+        self.clearProcessButton.clicked.connect(self.listWidget.clear)
+
 
         #set layout
-        layout = QGridLayout()
-        layoutButtons = QVBoxLayout()
-        layout.addWidget(selectorWidget, 0, 0)
-        layout.addWidget(listWidget, 0, 1)
-        layout.addWidget(generateXlsButton, 1, 0)
-        layout.addLayout(layoutButtons, 0, 2)
-        layoutButtons.addWidget(saveProcessButton)
-        layoutButtons.addWidget(loadProcessButton)
-        layoutButtons.addWidget(clearProcessButton)
-        self.setLayout(layout)
+        self.layout = QGridLayout()
+        self.layoutButtons = QVBoxLayout()
+        self.layout.addWidget(self.selectorWidget, 0, 0)
+        self.layout.addWidget(self.listWidget, 0, 1)
+        self.layout.addWidget(self.generateXlsButton, 1, 0)
+        self.layout.addLayout(self.layoutButtons, 0, 2)
+        self.layoutButtons.addWidget(self.saveProcessButton)
+        self.layoutButtons.addWidget(self.loadProcessButton)
+        self.layoutButtons.addWidget(self.editProcessButton)
+        self.layoutButtons.addWidget(self.clearProcessButton)
+        self.setLayout(self.layout)
+
+    ###additional process commands and functions
+    def writeToFile(self):
+        """writes content of list to iostream for xls translation"""
+        excelname = QFileDialog.getSaveFileName(None, "Generate Excel-File", r"C:\Users\luekens\PycharmProjects\ProcessBuilder", "Excel File (*.xlsx)")
+        if excelname[0]: #user pressed ok
+            file = io.StringIO()
+            for i in range(0, self.listWidget.count()):
+                file.write("%s\n" % self.listWidget.item(i).whatsThis())
+            convertTXTtoXLS(file, excelname[0])
+            file.close()
+    def insertCustomHeading(self):
+        """function to insert custom heading into xls"""
+        inputHeader = QInputDialog.getText(None, "ProcessBuilder", "Insert Heading:", QLineEdit.Normal)
+        if inputHeader[1]:
+            tempListItem = QListWidgetItem(self.listWidget)
+            tempListItem.setWhatsThis("=" + inputHeader[0] + "\t§header")
+            tempListItem.setText("Heading: " + inputHeader[0])
+
+    #translates QTreeWidgetItems to QListWidgetItems and parse additional commands
+    def translateTreeToList(self, item, column):
+        """translates items from QTreeViewWidget to QListWidget items"""
+        if item.text(1) == "COMMAND":
+            if item.text(2) == "HEADING": self.insertCustomHeading()
+
+        elif not item.text(1) == "":
+            tempListItem = QListWidgetItem(self.listWidget)
+            tempListItem.setWhatsThis(item.text(1))
+            tempListItem.setText(item.text(2) + " -> " + item.text(0))
+
+
+
+    def deleteListItem(self, item):
+        """deletes items from QListWidget"""
+        self.listWidget.takeItem(self.listWidget.row(item))
+
+    def saveProcess(self):
+        """saves process to file"""
+        saveFilename = QFileDialog.getSaveFileName(None, "Save Process", sys.path[0], "Process File (*.pro)")
+        if saveFilename[0]:
+            file = open(saveFilename[0], "w", encoding='UTF-8')
+            for i in range(0, self.listWidget.count()):
+                file.write("%s\t%s\n" % (self.listWidget.item(i).text(), self.listWidget.item(i).whatsThis()))
+            file.close()
+
+    def loadProcess(self):
+        """load process from file"""
+        inputFilename = QFileDialog.getOpenFileName(None, "Open Process", self.readIni["DEFAULT"]["defaultProcessPath"], "Process File(*.pro)")
+        if inputFilename[0]:
+            with open(inputFilename[0], encoding='UTF-8') as file:
+                for line in file:
+                    tmp = line.replace("\n","").split("\t")
+                    tempListItem = QListWidgetItem(self.listWidget)
+                    tempListItem.setText(tmp[0])
+                    tempListItem.setWhatsThis(tmp[1])
+
+    def saveActivatedItem(self, item):
+        """saves selected item in QListWidget"""
+        self.currentListItem = item
+        print(self.currentListItem.text())
+
+    def editProcess(self):
+        """function to edit process templates on the fly"""
+        #TODO implement functionality
+        if isinstance(self.currentListItem, QListWidgetItem):
+            filePath = self.currentListItem.whatsThis().strip(">") + ".txt"
+            file = open(filePath, "r", encoding="UTF-8")
+            readContent = []
+            for line in file:
+                readContent.append(line.split("|"))
+            if "=" in readContent[0][0]:  # split format line
+                readContent[0] = readContent[0][0].split("§")
+                readContent[0][1] = "§" + readContent[0][1]
+            #self.processEditWidget.setWindowTitle("Edit " + self.currentListItem.text())
+            #self.processEditWidget.show()
+            print(readContent)
+
 
 #mandatory gui lines
 app = QApplication(sys.argv)
