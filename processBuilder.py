@@ -83,6 +83,8 @@ class ProcessStepSelectorWidget(QTreeWidget):
             customCmdHeading.setText(2, "HEADING")
         createCustomCommands()
 
+
+# noinspection PyUnresolvedReferences
 class ProcessBuilderGui(QDialog):
     def __init__(self, parent=None):
         super(ProcessBuilderGui, self).__init__(parent)
@@ -154,7 +156,7 @@ class ProcessBuilderGui(QDialog):
     def writeToFile(self):
         """writes content of list to iostream for xls translation"""
         excelname = QFileDialog.getSaveFileName(None, "Generate Excel-File", r"C:\Users\luekens\PycharmProjects\ProcessBuilder", "Excel File (*.xlsx)")
-        if excelname[0]: #user pressed ok
+        if excelname[0]:  # user pressed ok
             file = io.StringIO()
             for i in range(0, self.listWidget.count()):
                 file.write("%s\n" % self.listWidget.item(i).whatsThis())
