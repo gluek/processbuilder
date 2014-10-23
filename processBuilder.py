@@ -155,7 +155,7 @@ class ProcessBuilderGui(QDialog):
     ###additional process commands and functions
     def writeToFile(self):
         """writes content of list to iostream for xls translation"""
-        excelname = QFileDialog.getSaveFileName(None, "Generate Excel-File", r"C:\Users\luekens\PycharmProjects\ProcessBuilder", "Excel File (*.xlsx)")
+        excelname = QFileDialog.getSaveFileName(None, "Generate Excel-File", self.readIni["DEFAULT"]["defaultSavePath"], "Excel File (*.xlsx)")
         if excelname[0]:  # user pressed ok
             file = io.StringIO()
             for i in range(0, self.listWidget.count()):
@@ -224,8 +224,8 @@ class ProcessBuilderGui(QDialog):
             for line in file:
                 readContent.append(line.split("|"))
             if "=" in readContent[0][0]:  # split format line
-                readContent[0] = readContent[0][0].split("§")
-                readContent[0][1] = "§" + readContent[0][1]
+                readContent[0] = readContent[0][0].split(u"\u00A7")  # u"\u00A7" utf-8 code for paragraph
+                readContent[0][1] = u"\u00A7" + readContent[0][1]
             self.tableWidget.setColumnCount(2)
             self.tableWidget.setRowCount(len(readContent))
             tabletWidgetItems = []

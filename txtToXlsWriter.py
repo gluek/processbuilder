@@ -19,7 +19,7 @@ __new_file_char__ = '>'   # indicates a new file to open,      only as first cha
 __empty_line_char__ = '_'   # indicates an empty line,           only as first character
 __ignore_line_char__ = '-'   # line will be ignored,              only as first character
 __cell_break_char__ = '|'   # indicates a cell-"break",          only useable w/o headlines and new file
-__format_char__ = '§'   # indicates a change in format,      only usable after headlines!
+__format_char__ = u"\u00A7"   # indicates a change in format,      only usable after headlines!
 
 __file_extension__ = 'txt'     # w/o dot
 
