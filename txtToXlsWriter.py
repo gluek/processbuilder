@@ -36,18 +36,19 @@ def convertTXTtoXLS(process_iostream, excel_filename):
 
     __build_formats__(workbook)
 
-    # Open the "process" file
-    end = __export_file__(worksheet, process_iostream, __row__)
-        # this function is recursive, will handle the file processing and write the excel file
-
     # Set a few parameters for a nice excel file
     # Freeze the first column
     worksheet.freeze_panes(0, 1)
     # worksheet.set_column(first_col, last_col, width, cell_format, options)
     worksheet.set_column(0, 0, 20)  # first col
     worksheet.set_column(1, 1, 1)
-    worksheet.set_column(2, 2, 25)  # third col, wenn writing more cols, expand this
+    worksheet.set_column(2, 2, 25)  # third col, if writing more cols, expand this
     # worksheet.set_row(row, height, cell_format, options)
+
+    # Open the "process" file
+    end = __export_file__(worksheet, process_iostream, __row__)
+        # this function is recursive, will handle the file processing and write the excel file
+
     for x in range(end):
         worksheet.set_row(x, 15, None)
 
@@ -61,8 +62,12 @@ def __export_file__(worksheet, process_iostream, row):
     if isinstance(process_iostream, str):
         file = open(process_iostream.split(".")[0] + "." + __file_extension__, mode='r', encoding='UTF-8')
         for line in file:
+            #skip empty line
+            if line == "":
+                pass
+
             # caption
-            if line[0] == __caption_char__:
+            elif line[0] == __caption_char__:
                 row = __write_caption__(worksheet, line[1:].strip(), row)
 
             # new file
@@ -76,13 +81,20 @@ def __export_file__(worksheet, process_iostream, row):
             # ignored line
             elif line[0] == __ignore_line_char__:
                 pass  # do nothing
+
+
 
             # normal
             else:
                 row = __write_line__(worksheet, line.strip(), row)
     elif isinstance(process_iostream, io.StringIO):
         for line in process_iostream.getvalue().splitlines():
-            if line[0] == __caption_char__:
+             #skip empty line
+            if line == "":
+                pass
+
+            # caption
+            elif line[0] == __caption_char__:
                 row = __write_caption__(worksheet, line[1:].strip(), row)
 
             # new file
@@ -96,6 +108,8 @@ def __export_file__(worksheet, process_iostream, row):
             # ignored line
             elif line[0] == __ignore_line_char__:
                 pass  # do nothing
+
+
 
             # normal
             else:

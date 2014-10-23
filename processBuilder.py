@@ -87,16 +87,10 @@ class ProcessBuilderGui(QDialog):
     def __init__(self, parent=None):
         super(ProcessBuilderGui, self).__init__(parent)
 
+        #set window title and load ini configs
         self.setWindowTitle("Process Builder")
         self.readIni = configparser.ConfigParser()
         self.readIni.read("processBuilder.ini")
-
-        #create UI buttons
-        self.generateXlsButton = QPushButton("Generate")
-        self.saveProcessButton = QPushButton("Save")
-        self.loadProcessButton = QPushButton("Load")
-        self.editProcessButton = QPushButton("Edit")
-        self.clearProcessButton = QPushButton("Clear")
 
         #create tree structure with loaded process step templates
         self.selectorWidget = ProcessStepSelectorWidget()
@@ -108,22 +102,26 @@ class ProcessBuilderGui(QDialog):
         self.currentListItem = 0
         self.exchangeItem = 0
 
-        #initialize process edit window
+        #setup process edit window
+        self.editOkButton = QPushButton("Ok")
+        self.editCancelButton = QPushButton("Cancel")
         self.processEditWidget = QWidget()
+        self.tableWidget = QTableWidget()
+        self.processEditWidgetLayout = QGridLayout()
+        self.processEditWidgetSubLayout = QHBoxLayout()
+        self.processEditWidgetSubLayout.addWidget(self.editOkButton)
+        self.processEditWidgetSubLayout.addWidget(self.editCancelButton)
+        self.processEditWidgetLayout.addWidget(self.tableWidget, 0, 0)
+        self.processEditWidgetLayout.addLayout(self.processEditWidgetSubLayout, 1, 0)
+        self.processEditWidget.setLayout(self.processEditWidgetLayout)
 
-
-        #connect signals
-        self.selectorWidget.itemDoubleClicked.connect(self.translateTreeToList)
-        self.listWidget.itemDoubleClicked.connect(self.deleteListItem)
-        self.listWidget.itemClicked.connect(self.saveActivatedItem)
-        self.generateXlsButton.clicked.connect(self.writeToFile)
-        self.loadProcessButton.clicked.connect(self.loadProcess)
-        self.saveProcessButton.clicked.connect(self.saveProcess)
-        self.editProcessButton.clicked.connect(self.editProcess)
-        self.clearProcessButton.clicked.connect(self.listWidget.clear)
-
-
-        #set layout
+        #setup Main GUI
+        #create Main UI buttons
+        self.generateXlsButton = QPushButton("Generate")
+        self.saveProcessButton = QPushButton("Save")
+        self.loadProcessButton = QPushButton("Load")
+        self.editProcessButton = QPushButton("Edit")
+        self.clearProcessButton = QPushButton("Clear")
         self.layout = QGridLayout()
         self.layoutButtons = QVBoxLayout()
         self.layout.addWidget(self.selectorWidget, 0, 0)
@@ -135,6 +133,22 @@ class ProcessBuilderGui(QDialog):
         self.layoutButtons.addWidget(self.editProcessButton)
         self.layoutButtons.addWidget(self.clearProcessButton)
         self.setLayout(self.layout)
+
+        #connect signals
+        #connect edit GUI signals
+        self.editCancelButton.clicked.connect(self.tableWidget.clear)
+        self.editCancelButton.clicked.connect(self.processEditWidget.hide)
+        self.editOkButton.clicked.connect(self.writeEditedDatatoProcess)
+
+        #connect Main GUI signals
+        self.selectorWidget.itemDoubleClicked.connect(self.translateTreeToList)
+        self.listWidget.itemDoubleClicked.connect(self.deleteListItem)
+        self.listWidget.itemClicked.connect(self.setActivatedItem)
+        self.generateXlsButton.clicked.connect(self.writeToFile)
+        self.loadProcessButton.clicked.connect(self.loadProcess)
+        self.saveProcessButton.clicked.connect(self.saveProcess)
+        self.editProcessButton.clicked.connect(self.editProcess)
+        self.clearProcessButton.clicked.connect(self.listWidget.clear)
 
     ###additional process commands and functions
     def writeToFile(self):
@@ -186,32 +200,55 @@ class ProcessBuilderGui(QDialog):
         if inputFilename[0]:
             with open(inputFilename[0], encoding='UTF-8') as file:
                 for line in file:
-                    tmp = line.replace("\n","").split("\t")
-                    tempListItem = QListWidgetItem(self.listWidget)
-                    tempListItem.setText(tmp[0])
-                    tempListItem.setWhatsThis(tmp[1])
+                    if "->" in line:
+                        tmp = line.replace("\n","").split("\t")
+                        tempListItem = QListWidgetItem(self.listWidget)
+                        tempListItem.setText(tmp[0])
+                        tempListItem.setWhatsThis(tmp[1])
 
-    def saveActivatedItem(self, item):
+    def setActivatedItem(self, item):
         """saves selected item in QListWidget"""
         self.currentListItem = item
-        print(self.currentListItem.text())
 
     def editProcess(self):
         """function to edit process templates on the fly"""
-        #TODO implement functionality
         if isinstance(self.currentListItem, QListWidgetItem):
-            filePath = self.currentListItem.whatsThis().strip(">") + ".txt"
-            file = open(filePath, "r", encoding="UTF-8")
+            if self.currentListItem.whatsThis()[0] == ">":
+                filePath = self.currentListItem.whatsThis().strip(">") + ".txt"
+                file = open(filePath, "r", encoding="UTF-8")
+            elif self.currentListItem.whatsThis()[0] == "=":
+                file = self.currentListItem.whatsThis().splitlines()
             readContent = []
             for line in file:
                 readContent.append(line.split("|"))
             if "=" in readContent[0][0]:  # split format line
                 readContent[0] = readContent[0][0].split("§")
                 readContent[0][1] = "§" + readContent[0][1]
-            #self.processEditWidget.setWindowTitle("Edit " + self.currentListItem.text())
-            #self.processEditWidget.show()
-            print(readContent)
+            self.tableWidget.setColumnCount(2)
+            self.tableWidget.setRowCount(len(readContent))
+            tabletWidgetItems = []
+            for row in enumerate(readContent):
+                for cell in enumerate(row[1]):
+                    tempTableItem = QTableWidgetItem(readContent[row[0]][cell[0]].strip())
+                    tabletWidgetItems.append(tempTableItem)
+                    self.tableWidget.setItem(row[0], cell[0], tempTableItem)
+            self.processEditWidget.setWindowTitle("Edit " + self.currentListItem.text())
+            self.processEditWidget.show()
 
+    def writeEditedDatatoProcess(self):
+        """function to write edited cells back to QListWidgetItem"""
+        newCommandString = "" + self.tableWidget.item(0, 0).text() + "\t" + self.tableWidget.item(0, 1).text() + "\n"
+        for row in range(1, self.tableWidget.rowCount()):
+            for col in range(self.tableWidget.columnCount()):
+                newCommandString += self.tableWidget.item(row, col).text()
+                if col == 0: newCommandString += "\t|\t"
+                elif col == 1: newCommandString += "\n"
+        if "CUSTOM" in self.currentListItem.text():
+            pass
+        else:
+            self.currentListItem.setText("CUSTOM " + self.currentListItem.text())
+        self.currentListItem.setWhatsThis(newCommandString)
+        self.processEditWidget.hide()
 
 #mandatory gui lines
 app = QApplication(sys.argv)
