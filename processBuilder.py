@@ -108,7 +108,9 @@ class ProcessBuilderGui(QDialog):
         self.editOkButton = QPushButton("Ok")
         self.editCancelButton = QPushButton("Cancel")
         self.processEditWidget = QWidget()
+        self.processEditWidget.setMinimumSize(400, 200)
         self.tableWidget = QTableWidget()
+        self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.processEditWidgetLayout = QGridLayout()
         self.processEditWidgetSubLayout = QHBoxLayout()
         self.processEditWidgetSubLayout.addWidget(self.editOkButton)
@@ -234,6 +236,7 @@ class ProcessBuilderGui(QDialog):
                     tempTableItem = QTableWidgetItem(readContent[row[0]][cell[0]].strip())
                     tabletWidgetItems.append(tempTableItem)
                     self.tableWidget.setItem(row[0], cell[0], tempTableItem)
+            self.tableWidget.horizontalHeader().resizeSection(0, 150)
             self.processEditWidget.setWindowTitle("Edit " + self.currentListItem.text())
             self.processEditWidget.show()
 
