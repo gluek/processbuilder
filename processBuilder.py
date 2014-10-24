@@ -170,7 +170,7 @@ class ProcessBuilderGui(QDialog):
             tempListItem.setWhatsThis("=" + inputHeader[0] + "\t§header")
             tempListItem.setText("Heading: " + inputHeader[0])
 
-    #translates QTreeWidgetItems to QListWidgetItems and parse additional commands
+    #translates QTreeWidgetItems to QListWidgetItems and parses additional commands
     def translateTreeToList(self, item, column):
         """translates items from QTreeViewWidget to QListWidget items"""
         if item.text(1) == "COMMAND":
@@ -191,7 +191,7 @@ class ProcessBuilderGui(QDialog):
         """saves process to file"""
         saveFilename = QFileDialog.getSaveFileName(None, "Save Process", sys.path[0], "Process File (*.pro)")
         if saveFilename[0]:
-            file = open(saveFilename[0], "w", encoding='UTF-8')
+            file = open(saveFilename[0], "w", encoding="UTF-8-sig")
             for i in range(0, self.listWidget.count()):
                 file.write("%s\t%s\n" % (self.listWidget.item(i).text(), self.listWidget.item(i).whatsThis()))
             file.close()
@@ -200,7 +200,7 @@ class ProcessBuilderGui(QDialog):
         """load process from file"""
         inputFilename = QFileDialog.getOpenFileName(None, "Open Process", self.readIni["DEFAULT"]["defaultProcessPath"], "Process File(*.pro)")
         if inputFilename[0]:
-            with open(inputFilename[0], encoding='UTF-8') as file:
+            with open(inputFilename[0], encoding="UTF-8-sig") as file:
                 for line in file:
                     if "->" in line:
                         tmp = line.replace("\n","").split("\t")
@@ -217,7 +217,7 @@ class ProcessBuilderGui(QDialog):
         if isinstance(self.currentListItem, QListWidgetItem):
             if self.currentListItem.whatsThis()[0] == ">":
                 filePath = self.currentListItem.whatsThis().strip(">") + ".txt"
-                file = open(filePath, "r", encoding="UTF-8")
+                file = open(filePath, "r", encoding="UTF-8-sig")
             elif self.currentListItem.whatsThis()[0] == "=":
                 file = self.currentListItem.whatsThis().splitlines()
             readContent = []
