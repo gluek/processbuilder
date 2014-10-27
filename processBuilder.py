@@ -205,10 +205,14 @@ class ProcessBuilderGui(QDialog):
             with open(inputFilename[0], encoding="UTF-8-sig") as file:
                 for line in file:
                     if "->" in line:
-                        tmp = line.replace("\n","").split("\t")
+                        tmp = line.split("\t")
+                        tmpComm = "\t".join(tmp[1:])
                         tempListItem = QListWidgetItem(self.listWidget)
                         tempListItem.setText(tmp[0])
-                        tempListItem.setWhatsThis(tmp[1])
+                        tempListItem.setWhatsThis(tmpComm)
+                    else:
+                        tmpComm += line
+                        tempListItem.setWhatsThis(tmpComm)
 
     def setActivatedItem(self, item):
         """saves selected item in QListWidget"""
