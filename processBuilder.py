@@ -13,7 +13,7 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 def getProcessStepFiles(templatePath):
-    # crawls subdirectory ProcessSteps and returns a list of all template files
+    """crawls subdirectory ProcessSteps and returns a list of all template files"""
     filesListProcessSteps = []
     for path, dirs, files in os.walk(templatePath):
         sublist = []
@@ -122,6 +122,7 @@ class ProcessBuilderGui(QDialog):
         #setup Main GUI
         #create Main UI buttons
         self.generateXlsButton = QPushButton("Generate")
+        self.generateXlsButton.setFixedWidth(100)
         self.saveProcessButton = QPushButton("Save")
         self.loadProcessButton = QPushButton("Load")
         self.editProcessButton = QPushButton("Edit")
