@@ -1,5 +1,5 @@
 #!python
-#name: processBuilder_v0.2
+#name: processBuilder_v0.4
 #author: Gerrit Lükens
 #python 3.4.1
 
@@ -9,6 +9,7 @@ import os
 import configparser
 import io
 from txtToXlsWriter import convertTXTtoXLS
+from ProcessDetailsInput import ProcessDetailsInputDialog
 from PySide.QtCore import *
 from PySide.QtGui import *
 
@@ -97,6 +98,9 @@ class ProcessBuilderGui(QDialog):
         #create tree structure with loaded process step templates
         self.selectorWidget = ProcessStepSelectorWidget()
 
+        #create process details input dialog
+        self.processDetails = ProcessDetailsInputDialog(self.readIni["GLOBAL"]["userListPath"], self.readIni["GLOBAL"]["processTypesPath"], self.readIni["GLOBAL"]["runSheetFile"])
+
         #create list for process flow
         self.listWidget = QListWidget()
         self.listWidget.setMovement(QListView.Snap)
@@ -165,6 +169,7 @@ class ProcessBuilderGui(QDialog):
                 file.write("%s\n" % self.listWidget.item(i).whatsThis())
             convertTXTtoXLS(file, excelname[0])
             file.close()
+            self.processDetails.show()
     def insertCustomHeading(self):
         """function to insert custom heading into xls"""
         inputHeader = QInputDialog.getText(None, "ProcessBuilder", "Insert Heading:", QLineEdit.Normal)

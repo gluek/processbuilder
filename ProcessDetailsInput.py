@@ -18,7 +18,6 @@ class ProcessDetailsInputDialog(QDialog):
         #create user list dropdown
         userFile = open(userListPath + "\\users.ini", "r", encoding="UTF-8-sig")
         userFileData = userFile.read().split("\n")
-        print(userFileData)
         self.users = userFileData[1:]
         self.users.sort()
         self.userList = QComboBox()
@@ -28,7 +27,6 @@ class ProcessDetailsInputDialog(QDialog):
         #create process types drop down
         typesFile = open(processTypesPath + "\\processtypes.ini", "r", encoding="UTF-8-sig")
         typesFileData = typesFile.read().split("\n")
-        print(typesFileData)
         self.processTypes = typesFileData[1:]
         self.processTypes.sort()
         self.processTypeList = QComboBox()
