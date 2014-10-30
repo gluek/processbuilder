@@ -1,5 +1,5 @@
 #!python
-#name: processBuilder_v0.4
+#name: processBuilder_v0.5
 #author: Gerrit Lükens
 #python 3.4.1
 
@@ -91,7 +91,7 @@ class ProcessBuilderGui(QDialog):
         super(ProcessBuilderGui, self).__init__(parent)
 
         #set window title and load ini configs
-        self.setWindowTitle("Process Builder")
+        self.setWindowTitle("Process Builder v0.5")
         self.readIni = configparser.ConfigParser()
         self.readIni.read("processBuilder.ini")
 
