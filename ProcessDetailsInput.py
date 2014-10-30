@@ -5,13 +5,14 @@ import win32com.client as win32
 
 
 class ProcessDetailsInputDialog(QDialog):
-    def __init__(self, userListPath, processTypesPath, parent=None):
+    def __init__(self, userListPath, processTypesPath,  runSheetPath, parent=None):
         super(ProcessDetailsInputDialog, self).__init__(parent)
+        self.runSheetPath = runSheetPath
         self.setWindowTitle("Process Details")
         self.setFixedHeight(100)
         #open excel document
         self.excel = win32.gencache.EnsureDispatch("Excel.Application")
-        self.wb = self.excel.Workbooks.Open(r"C:\Users\luekens\PycharmProjects\ProcessBuilder\testLaufzettel.xlsx")
+        self.wb = self.excel.Workbooks.Open(self.runSheetPath)
         self.ws = self.wb.Worksheets("Sheet1")
 
         #create user list dropdown
@@ -113,12 +114,12 @@ class ProcessDetailsInputDialog(QDialog):
         self.ws.Cells(line, 3).Value = self.userList.currentText()
         self.ws.Cells(line, 4).Value = self.lineEditDescription.text()
         self.ws.Cells(line, 5).Value = self.lineEditSamples.text()
-        self.wb.SaveAs(r"C:\Users\luekens\PycharmProjects\ProcessBuilder\testLaufzettel.xlsx")
+        self.wb.SaveAs(self.runSheetPath)
         self.excel.Application.Quit()
 
-app = QApplication(sys.argv)
-form = ProcessDetailsInputDialog("Y:\GaN_Device\Laufzettel\ProcessBuilderLists", "Y:\GaN_Device\Laufzettel\ProcessBuilderLists")
-form.show()
-app.exec_()
+#app = QApplication(sys.argv)
+#form = ProcessDetailsInputDialog("Y:\GaN_Device\Laufzettel\ProcessBuilderLists", "Y:\GaN_Device\Laufzettel\ProcessBuilderLists")
+#form.show()
+#app.exec_()
 
 
