@@ -126,21 +126,27 @@ class ProcessBuilderGui(QDialog):
         #setup Main GUI
         #create Main UI buttons
         self.generateXlsButton = QPushButton("Generate")
-        self.generateXlsButton.setFixedWidth(100)
+        self.generateXlsButton.setFixedWidth(75)
         self.saveProcessButton = QPushButton("Save")
+        self.saveProcessButton.setFixedWidth(75)
         self.loadProcessButton = QPushButton("Load")
+        self.loadProcessButton.setFixedWidth(75)
         self.editProcessButton = QPushButton("Edit")
+        self.editProcessButton.setFixedWidth(75)
         self.clearProcessButton = QPushButton("Clear")
+        self.clearProcessButton.setFixedWidth(75)
         self.layout = QGridLayout()
         self.layoutButtons = QVBoxLayout()
         self.layout.addWidget(self.selectorWidget, 0, 0)
         self.layout.addWidget(self.listWidget, 0, 1)
-        self.layout.addWidget(self.generateXlsButton, 1, 0)
-        self.layout.addLayout(self.layoutButtons, 0, 2)
+
+        self.layout.addLayout(self.layoutButtons, 0, 2, alignment=Qt.AlignTop)
         self.layoutButtons.addWidget(self.saveProcessButton)
         self.layoutButtons.addWidget(self.loadProcessButton)
         self.layoutButtons.addWidget(self.editProcessButton)
         self.layoutButtons.addWidget(self.clearProcessButton)
+        self.layoutButtons.addSpacing(25)
+        self.layoutButtons.addWidget(self.generateXlsButton)
         self.setLayout(self.layout)
 
         #connect signals

@@ -6,7 +6,7 @@ win32.gencache.is_readonly = False
 win32.gencache.Rebuild()
 
 class ProcessDetailsInputDialog(QDialog):
-    def __init__(self, userListPath, processTypesPath,  runSheetPath, parent=None):
+    def __init__(self, userListPath, processTypesPath, runSheetPath, parent=None):
         super(ProcessDetailsInputDialog, self).__init__(parent)
         self.runSheetPath = runSheetPath
         self.setWindowTitle("Process Details")
@@ -25,7 +25,7 @@ class ProcessDetailsInputDialog(QDialog):
         for item in enumerate(self.users):
             self.userList.insertItem(item[0],item[1])
 
-        #create process types drop down
+        #create process types dropdown
         typesFile = open(processTypesPath + "\\processtypes.ini", "r", encoding="UTF-8-sig")
         typesFileData = typesFile.read().split("\n")
         self.processTypes = typesFileData[1:]
@@ -86,8 +86,6 @@ class ProcessDetailsInputDialog(QDialog):
         self.buttonOk.clicked.connect(self.writeProcessDetails)
         self.buttonCancel.clicked.connect(self.hide)
 
-        #wb.SaveAs(r"C:\Users\luekens\PycharmProjects\ProcessBuilder\testLaufzettel.xlsx")
-
     def getNextProcessId(self):
         """returns next free process id in run sheet"""
         #find next empty line
@@ -97,6 +95,7 @@ class ProcessDetailsInputDialog(QDialog):
         #calc next free process id
         processId = int(self.ws.Cells(i-1, 1).Value + 1)
         return processId
+
     def getNextEmptyLine(self):
         """returns next index of next empty line in run sheet"""
         i = 1
