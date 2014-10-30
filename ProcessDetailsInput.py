@@ -2,7 +2,8 @@ import sys
 from PySide.QtGui import *
 from PySide.QtCore import *
 import win32com.client as win32
-
+win32.gencache.is_readonly = False
+win32.gencache.Rebuild()
 
 class ProcessDetailsInputDialog(QDialog):
     def __init__(self, userListPath, processTypesPath,  runSheetPath, parent=None):
@@ -114,6 +115,7 @@ class ProcessDetailsInputDialog(QDialog):
         self.ws.Cells(line, 5).Value = self.lineEditSamples.text()
         self.wb.SaveAs(self.runSheetPath)
         self.excel.Application.Quit()
+        self.hide()
 
 #app = QApplication(sys.argv)
 #form = ProcessDetailsInputDialog("Y:\GaN_Device\Laufzettel\ProcessBuilderLists", "Y:\GaN_Device\Laufzettel\ProcessBuilderLists")
