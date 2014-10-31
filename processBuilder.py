@@ -164,6 +164,7 @@ class ProcessBuilderGui(QDialog):
         self.saveProcessButton.clicked.connect(self.saveProcess)
         self.editProcessButton.clicked.connect(self.editProcess)
         self.clearProcessButton.clicked.connect(self.listWidget.clear)
+        self.finished.connect(self.closeExcelFileOnExit)
 
     ###additional process commands and functions
     def writeToFile(self):
@@ -270,6 +271,9 @@ class ProcessBuilderGui(QDialog):
             self.currentListItem.setText("CUSTOM " + self.currentListItem.text())
         self.currentListItem.setWhatsThis(newCommandString)
         self.processEditWidget.hide()
+
+    def closeExcelFileOnExit(self, int):
+        self.processDetails.closeExcelFile()
 
 #mandatory gui lines
 app = QApplication(sys.argv)

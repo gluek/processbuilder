@@ -1,4 +1,5 @@
 import sys
+import os.path
 from PySide.QtGui import *
 from PySide.QtCore import *
 import win32com.client as win32
@@ -13,8 +14,15 @@ class ProcessDetailsInputDialog(QDialog):
         self.setFixedHeight(100)
         #open excel document
         self.excel = win32.gencache.EnsureDispatch("Excel.Application")
-        self.wb = self.excel.Workbooks.Open(self.runSheetPath)
-        self.ws = self.wb.Worksheets("Sheet1")
+        if os.path.isfile(self.runSheetPath):
+            self.wb = self.excel.Workbooks.Open(self.runSheetPath)
+            self.ws = self.wb.Worksheets("Sheet1")
+        else:
+            msgBox = QMessageBox()
+            msgBox.setText("No Run Sheet File found. Please check processBuilder.ini for correct file path.")
+            msgBox.setIcon(QMessageBox.Warning)
+            msgBox.exec_()
+            return
 
         #create user list dropdown
         userFile = open(userListPath + "\\users.ini", "r", encoding="UTF-8-sig")
@@ -116,6 +124,8 @@ class ProcessDetailsInputDialog(QDialog):
         self.excel.Application.Quit()
         self.hide()
 
+    def closeExcelFile(self):
+        self.excel.Application.Quit()
 #app = QApplication(sys.argv)
 #form = ProcessDetailsInputDialog("Y:\GaN_Device\Laufzettel\ProcessBuilderLists", "Y:\GaN_Device\Laufzettel\ProcessBuilderLists")
 #form.show()
