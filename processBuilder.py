@@ -91,7 +91,7 @@ class ProcessBuilderGui(QDialog):
         super(ProcessBuilderGui, self).__init__(parent)
 
         #set window title and load ini configs
-        self.setWindowTitle("Process Builder v0.5")
+        self.setWindowTitle("Process Builder v1.0")
         self.readIni = configparser.ConfigParser()
         self.readIni.read("processBuilder.ini")
 

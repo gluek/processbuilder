@@ -12,6 +12,7 @@ class ProcessDetailsInputDialog(QDialog):
         self.runSheetPath = runSheetPath
         self.setWindowTitle("Process Details")
         self.setFixedHeight(100)
+        self.isopen = True
         #open excel document
         self.excel = win32.gencache.EnsureDispatch("Excel.Application")
         if os.path.isfile(self.runSheetPath):
@@ -109,7 +110,6 @@ class ProcessDetailsInputDialog(QDialog):
         i = 1
         while self.ws.Cells(i, 1).Value is not None:
             i += 1
-            print(self.ws.Cells(i, 1).Value)
         return i
 
     def writeProcessDetails(self):
@@ -120,12 +120,13 @@ class ProcessDetailsInputDialog(QDialog):
         self.ws.Cells(line, 3).Value = self.userList.currentText()
         self.ws.Cells(line, 4).Value = self.lineEditDescription.text()
         self.ws.Cells(line, 5).Value = self.lineEditSamples.text()
-        self.wb.SaveAs(self.runSheetPath)
-        self.excel.Application.Quit()
+        self.wb.Close(True, self.runSheetPath)
+        self.isopen = False
         self.hide()
 
     def closeExcelFile(self):
-        self.excel.Application.Quit()
+        if self.isopen:
+            self.wb.Close(True)
 #app = QApplication(sys.argv)
 #form = ProcessDetailsInputDialog("Y:\GaN_Device\Laufzettel\ProcessBuilderLists", "Y:\GaN_Device\Laufzettel\ProcessBuilderLists")
 #form.show()
