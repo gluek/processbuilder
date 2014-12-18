@@ -1,5 +1,5 @@
 #!python
-#name: processBuilder_v0.5
+#name: processBuilder_v1.0
 #author: Gerrit Lükens
 #python 3.4.1
 

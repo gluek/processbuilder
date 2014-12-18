@@ -60,7 +60,7 @@ def __export_file__(worksheet, process_iostream, row):
     """works through the file/s and writes into xlsx
     filename/filepath w/o extension"""
     if isinstance(process_iostream, str):
-        file = open(process_iostream.split(".")[0] + "." + __file_extension__, mode='r', encoding='UTF-8')
+        file = open(process_iostream.split(".")[0] + "." + __file_extension__, mode='r', encoding='UTF-8-sig')
         for line in file:
             #skip empty line
             if line == "":
